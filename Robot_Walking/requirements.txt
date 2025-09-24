@@ -1,0 +1,15 @@
+numpy<2.0.0
+scipy
+matplotlib
+pandas
+seaborn
+pygame
+pyglet==1.5.27
+setuptools==65.5.0
+wheel<0.40.0
+
+cython<3
+mujoco-py<2.2,>=2.1
+importlib-metadata==4.13.0
+gym==0.21.0
+stable-baselines3==1.6.2
