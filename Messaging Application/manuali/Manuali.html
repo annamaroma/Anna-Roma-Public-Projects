@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Manuale — App di Messaggistica</title>
+  <style>
+    :root{
+      --bg:#0b0c0f; --panel:#12141a; --muted:#a8b0c0; --text:#e7ecf3;
+      --link:#6aa9ff; --accent:#7dd3fc; --border:#222632; --codebg:#0f1117; --shadow:0 8px 24px rgba(0,0,0,.35);
+      --pill:#1b2030; --indicator:#7dd3fc;
+    }
+    .light{
+      --bg:#f7f8fb; --panel:#fff; --muted:#586174; --text:#0e1320;
+      --link:#0b6bff; --accent:#0078d4; --border:#e5e8ef; --codebg:#f3f5f9; --shadow:0 8px 24px rgba(13,18,28,.08);
+      --pill:#eef2f9; --indicator:#0b6bff;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font:16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans;
+         background:var(--bg); color:var(--text)}
+    a{color:var(--link); text-decoration:none}
+    a:hover{text-decoration:underline}
+    pre{background:var(--codebg); padding:12px; border-radius:12px; overflow:auto; border:1px solid var(--border)}
+    code{background:var(--codebg); padding:2px 6px; border-radius:6px}
+
+    .layout{display:grid; grid-template-columns:280px 1fr; min-height:100vh}
+    nav.sidebar{border-right:1px solid var(--border); background:var(--panel); padding:18px; position:sticky; top:0; height:100vh; overflow:auto}
+    main{padding:28px 36px}
+    .brand{font-weight:700; margin:0 0 12px}
+    .toc{list-style:none; padding:0; margin:12px 0 0}
+    .toc li a{display:block; padding:8px 10px; border-radius:8px}
+    .toc li a:hover, .toc li a.active{background:var(--pill)}
+
+    /* TOP TABS */
+    .topbar{position:sticky; top:0; z-index:5; background:linear-gradient(to bottom, color-mix(in oklab, var(--panel), transparent 0%), color-mix(in oklab, var(--panel), transparent 100%)); backdrop-filter:saturate(1.2) blur(6px); margin:-12px -12px 16px; padding:12px}
+    .tabs{display:flex; gap:10px; border-bottom:1px solid var(--border)}
+    .tab{
+      position:relative; border:none; background:var(--pill); color:var(--text);
+      padding:10px 14px; border-radius:999px; font-weight:700; cursor:pointer;
+    }
+    .tab[aria-selected="true"]{outline:2px solid color-mix(in oklab, var(--indicator), transparent 60%)}
+    .tab[aria-selected="true"]::after{
+      content:""; position:absolute; left:50%; transform:translateX(-50%);
+      bottom:-11px; width:60%; height:3px; background:var(--indicator); border-radius:999px;
+    }
+    .tab small{display:block; font-weight:600; color:var(--muted)}
+
+    .doc-title{margin:8px 0 4px; font-size:28px}
+    .doc-sub{margin:0 0 14px; color:var(--muted)}
+    section{background:var(--panel); border:1px solid var(--border); box-shadow:var(--shadow); padding:20px; border-radius:16px; margin:18px 0}
+
+  /* Titoli: colore base e differenziazione per manuale */
+  main h2{ color: var(--h2-color, var(--accent)); }
+  main h3{ color: var(--h3-color, var(--link)); }
+  main h4{ color: var(--h4-color, var(--muted)); }
+
+  /* Palette specifica per manuale Gruppo (primo tab) */
+  section[data-manuale="gruppo"]{ --h2-color:#c16413; }
+  /* Palette specifica per manuale Utente */
+  section[data-manuale="utente"]{ --h2-color:#066513; /* giallo scuro/ambra 700 */ --h3-color:#56a869; /* rosso 700 */ }
+  /* Palette specifica per manuale Progettista */
+  section[data-manuale="progettista"]{ --h2-color:#0f2067; /* blu */ --h3-color:#346c84; /* azzurro */ --h4-color:#3599c4; /* blu 500 */ }
+
+  /* Immagini e galleria */
+  img.responsive{max-width:100%; height:auto; display:block; margin:0 auto; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow)}
+  figure{margin:12px 0}
+  figcaption{color:var(--muted); font-size:90%; text-align:center; margin-top:6px}
+  .gallery{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px}
+
+  
+
+
+  /* opzionale: evidenziazione base per le keyword */
+  code[class*="lang-"] .keyword { color: #569cd6; font-weight: bold; }
+  code[class*="lang-"] .string  { color: #d69d85; }
+  code[class*="lang-"] .number  { color: #b5cea8; }
+
+  /* Evidenziazione note */
+  .nota{color:#D97706; font-weight:700}
+
+    @media (max-width:900px){ .layout{grid-template-columns:1fr} nav.sidebar{position:static; height:auto} .topbar{position:static}}
+    @media print{ nav.sidebar,.topbar{display:none} body{background:#fff; color:#000} section{box-shadow:none; border-color:#ddd} a::after{content:" (" attr(href) ")"; font-size:80%; color:#555}}
+  </style>
+
+  <style>
+    .grafico {
+        width: 500px;   /* stessa larghezza per tutti */
+        height: auto;   /* mantiene le proporzioni */
+        object-fit: contain;
+    }
+
+    .grafici-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    figure {
+        text-align: center;
+    }
+    </style>
+
+
+</head>
+<body class="light">
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <h2 class="brand">Indice manuale</h2>
+      <ul id="toc" class="toc"></ul>
+    </nav>
+
+    <!-- CONTENT -->
+    <main>
+      <!-- TOP TABS -->
+      <div class="topbar" role="tablist" aria-label="Selezione manuale">
+        <div class="tabs">
+          <button class="tab" role="tab" data-manuale="gruppo" aria-selected="true">👥 Gruppo<small>Progetto e membri</small></button>
+          <button class="tab" role="tab" data-manuale="utente" aria-selected="false">🧭 Utente<small>Installazione & utilizzo</small></button>
+          <button class="tab" role="tab" data-manuale="progettista" aria-selected="false">🛠️ Progettista<small>Scelte tecniche</small></button>
+        </div>
+      </div>
+
+      <h1 class="doc-title" id="title">Programmazione di Sistema</h1>
+      <p class="doc-sub" id="subtitle">Progetto Ruggine, app di chat testuale</p>
+
+        <!-- ====== PROGETTO ====== -->
+    <section data-manuale="gruppo" id="gr-presentazione">
+        <h2>Presentazione del Progetto</h2>
+        <p>
+            L'applicazione, chiamata Ruggine, di tipo client/server gestisce una chat di scambio di messaggi testuali. 
+            La chat prevede la possibilità di creare gruppi di utenti per la condivisione di messaggi.
+            L’ammissione alla Chat è effettuata al primo avvio del programma, inviando al server una richiesta di iscrizione, 
+            mentre l’ingresso in un gruppo avviene solo su invito. Il programma è in grado di girare su almeno 2 tra le diverse piattaforme 
+            disponibili (Windows e Linux).
+            Si pone attenzione alle prestazioni del sistema in termini di consumo di tempo di CPU e di dimensione 
+            dell’applicativo. L’applicazione genera un file di log, riportando, ogni 2 minuti, i dettagli sul tempo di CPU
+            utilizzato da parte del server.
+    </section>
+
+      <!-- ====== GRUPPO ====== -->
+      <section data-manuale="gruppo" id="gr-membri">
+        <h2>Membri del gruppo</h2>
+        <table style="width:100%; border-collapse:separate; border-spacing:0; border:1px solid var(--border); border-radius:12px; overflow:hidden">
+          <thead style="background:var(--pill)">
+            <tr>
+              <th style="text-align:left; padding:10px">Nome</th>
+              <th style="text-align:left; padding:10px">Matricola</th>
+              <th style="text-align:left; padding:10px">Contatti</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding:10px">Alessio Giorgetti</td><td style="padding:10px">345637</td><td style="padding:10px"><a href="mailto:mario@example.com">s345637@studenti.polito.it</a></td></tr>
+            <tr><td style="padding:10px">Antonio Pio Evangelista</td><td style="padding:10px">347221</td><td style="padding:10px"><a href="mailto:giulia@example.com">s347221@studenti.polito.it</a></td></tr>
+            <tr><td style="padding:10px">Anna Roma</td><td style="padding:10px">345819</td><td style="padding:10px"><a href="mailto:luca@example.com">s345819@studenti.polito.it</a></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+
+      <!-- ====== MANUALE UTENTE ====== -->
+      <section data-manuale="utente" id="ut-panoramica" hidden>
+        <h2>Panoramica</h2>
+        <p><strong>RUGGINE</strong> è un’app di messaggistica desktop leggera pensata per chat 1:1 e di gruppo, ideale per gruppi di famiglia, progetti universitari e tanto altro. Tramite l'app, l'utente è in grado di:</p>
+        <ul>
+          <li>Chat private e di gruppo con cronologia dei messaggi.</li>
+          <li>Contatore dei messaggi non letti e aggiornamenti in tempo reale.</li>
+          <li>Ricerca rapida dei contatti, creazione e uscita dai gruppi.</li>
+          <li>Interfaccia moderna e reattiva basata su egui (framework Rust).</li>
+          <li>Nessun cloud obbligatorio: i dati risiedono nel server che gestisci tu.</li>
+        </ul>
+        <h3>Piattaforme supportate</h3>
+        <p>Client desktop è stato scritto in Rust e testato su Linux, ma è compilabile anche per Windows. Richiede un server RUGGINE raggiungibile (locale o remoto) sulla porta predefinita <code>8080</code> salvo diversa configurazione.</p>
+      <p class="nota">
+        Nota: per usare l’app è necessario che il server sia in esecuzione.
+      </p>
+      </section>
+
+    <!-- ====== installazione e configurazione ====== -->
+      <section data-manuale="utente" id="ut-installazione" hidden>
+        <h2>Installazione</h2>
+      <p>
+        Per installare l’applicazione è sufficiente accedere alla repository GitHub e scaricare la cartella della release (contenente i file eseguibili) relativa al proprio sistema operativo.
+        La release è associata a un tag specifico che indica la versione del software (fare riferimento sempre alla versione più recente).
+
+        E' anche possibile clonare la repository tramite SSH Key nel terminale, ottenendo la cartella contenente direttamente il codice sorgente.
+      </p>
+
+      <pre style="background-color:#f6f8fa; padding:10px; border-radius:6px;">
+      git clone git@github.com:PdS2425-C2/G49.git
+      cd G49/target/release
+      </pre>
+          
+      </section>
+
+      <!-- ====== avvio e arresto ====== -->
+      <section data-manuale="utente" id="ut-avvioEarresto" hidden>
+        <h2>Avvio e Arresto</h2>
+      <p>
+        Per avviare l’applicazione è sufficiente aprire il file eseguibile. 
+        È importante ricordare che il <strong>server</strong> deve essere avviato tramite Cargo prima del client, in modo da consentire le connessioni.
+      </p>
+
+      <pre style="background-color:#f6f8fa; padding:10px; border-radius:6px;">
+          # Avvio del server
+          cargo run --bin server
+      </pre>
+
+      <p>
+        Per spegnere l’applicazione è sufficiente chiudere il client e arrestare il server, ad esempio interrompendo il processo con <kbd>CTRL</kbd> + <kbd>C</kbd> dal terminale in cui è stato avviato.
+      </p>
+
+      </section>
+
+
+        <!-- ====== uso ====== -->
+      <section data-manuale="utente" id="ut-uso" hidden>
+        <h2>Guida all'utilizzo</h2>
+        <p>All’avvio dell’applicazione è richiesto l’accesso con il proprio nome utente.</p>
+        <figure>
+            <img class="responsive" src="manuale_images/log_in.png" alt="Schermata di login" loading="lazy">
+            <figcaption>Schermata di login</figcaption>
+        </figure>
+
+        <p>Una volta effettuato l'accesso, l'utente viene indirizzato alla schermata principale dell'applicazione, dove può visualizzare le chat esistenti e i gruppi di cui fa parte. 
+            Inizialmente la schermata principale potrebbe essere vuota se l'utente non ha ancora partecipato a nessuna chat o gruppo, oppure se non esistono altri utenti connessi al server.</p>
+        <figure>
+            <img class="responsive" src="manuale_images/Iniziale_vuota.png" alt="Schermata Principale Vuota" loading="lazy">
+            <figcaption>Schermata Principale Vuota</figcaption>
+        </figure>
+        
+        
+            <p>Man mano che gli utenti si iscrivono all’applicazione, viene mostrato un elenco di utenti tra cui scegliere per avviare una chat. 
+                A destra del campo 'Nome utente...' è presente un’icona di aggiornamento che consente di ricaricare l’elenco degli utenti disponibili, 
+                in modo da visualizzare anche quelli registrati successivamente e non perdere contatti appena aggiunti.</p>
+        <figure>
+            <img class="responsive" src="manuale_images/iniziale_nomi.png" alt="Schermata principale con utenti" loading="lazy">
+            <figcaption>Schermata principale con utenti</figcaption>
+        </figure>
+
+
+
+        <p> Lo storico delle chat e dei gruppi è visibile nella sezione in basso dalla schermata principale. Quando l'utente riceve una notifica, è visibile l'icona in rosso col numero delle notifiche, nella chat in questione. </p>
+        <p> Per iniziare una nuova chat, è sufficiente cliccare sul nome del contatto nell'elenco utenti e premere invio. </p>
+ 
+        <p class="nota">
+            Nota: per avviare una chat è necessario che il contatto destinatario sia già registrato nel server con lo stesso nome utente.
+        </p>
+
+        <figure>
+            <img class="responsive" src="manuale_images/iniziale_con_chat.png" alt="Schermata principale con cronologia chat" loading="lazy">
+            <figcaption>Schermata principale con cronologia chat</figcaption>
+        </figure>
+
+        <p> Per inviare un messaggio, è sufficiente digitare il testo nella barra in basso e premere invio. I messaggi inviati verranno visualizzati subito dopo sia nella propria finestra della chat, sia nella chat del destinatario.</p>
+        <div class="gallery">
+            <figure>
+                <img class="responsive" src="manuale_images/chat_bea_1.png" alt="Inizio della chat" loading="lazy">
+                <figcaption>Inizio della chat</figcaption>
+            </figure>
+            <figure>
+                <img class="responsive" src="manuale_images/chat_bea_2.png" alt="Messaggio ricevuto" loading="lazy">
+                <figcaption>Messaggio ricevuto</figcaption>
+            </figure>
+            <figure>
+                <img class="responsive" src="manuale_images/chat_bea_3.png" alt="Invio della risposta" loading="lazy">
+                <figcaption>Invio della risposta</figcaption>
+            </figure>
+        </div>
+
+        <p> Per creare un gruppo, è necessario cliccare sull'icona viola "Crea Gruppo" e inserire il nome del gruppo desiderato con i membri del gruppo.
+            Una volta creato, il gruppo apparirà nell'elenco delle chat in basso, insieme al nome del gruppo e all'elenco dei membri.
+        </p>
+        <p class="nota">
+            Nota: i membri del nuovo gruppo devono essere utenti già registrati nel server.
+        </p>
+
+        <div class = 'gallery'>
+            <figure>       
+                <img class="responsive" src="manuale_images/creo_gruppo.png" alt="Creazione di un nuovo gruppo" loading="lazy">
+                <figcaption>Creazione di un nuovo gruppo</figcaption>
+            </figure>
+            <figure>
+                <img class="responsive" src="manuale_images/creo_gruppo2.png" alt="Visualizzazione del gruppo nell'elenco delle chat" loading="lazy">
+                <figcaption>Visualizzazione del gruppo nell'elenco delle chat</figcaption>
+            </figure>
+        </div>
+
+        La chat di gruppo funziona in modo simile alla chat singola, con la differenza che i messaggi inviati vengono visualizzati da tutti i membri del gruppo.
+        <figure>
+            <img class="responsive" src="manuale_images/chat_gruppo.png" alt="Chat di gruppo" loading="lazy">
+            <figcaption>Chat di gruppo</figcaption>
+        </figure>
+
+      </section>
+      
+      <!-- ====== faq ====== -->
+      <section data-manuale="utente" id="ut-faq" hidden>
+  <h2>Risoluzione di Problemi</h2>
+  <p>Domande frequenti e risposte.</p>
+
+  <details>
+    <summary>L’applicazione non si avvia o non riesco a connettermi</summary>
+    <p>L'utente deve assicurarsi che il <strong>server sia attivo</strong>. L’app funziona solo se il server è in esecuzione e raggiungibile.</p>
+    <figure>
+      <img class="responsive" src="manuale_images/server_spento.png" alt="Verifica server attivo" loading="lazy">
+      <figcaption>Verifica server attivo</figcaption>
+    </figure>
+  </details>
+
+  <details>
+    <summary>Compare il messaggio “Utente già connesso”</summary>
+    <p>Ogni account può avere <strong>una sola sessione attiva</strong>. Se l'utente è già collegato da un altro dispositivo, deve disconnettersi da quello precedente prima di effettuare un nuovo accesso.</p>
+    <figure>
+      <img class="responsive" src="manuale_images/utente_già_connesso.png" alt="Errore di utente già connesso" loading="lazy">
+      <figcaption>Errore di utente già connesso</figcaption>
+    </figure>
+  </details>
+
+  <details>
+    <summary>Non riesco a iniziare una chat con un altro utente</summary>
+    <p>E' possibile avviare conversazioni solo con utenti <strong>già registrati</strong> nel server. L'utente verifichi che la persona abbia effettivamente creato un account e sia connessa.</p>
+  </details>
+
+  <details>
+    <summary>Non riesco a creare un gruppo</summary>
+    <p>Per creare un gruppo, tutti i membri devono essere <strong>già registrati</strong> nel server. L'utente verifichi che i nomi inseriti siano corretti e che gli utenti esistano.</p>
+  </details>
+</section>
+
+
+
+
+
+      <!-- ====== MANUALE PROGETTISTA ====== -->
+      <section data-manuale="progettista" id="pr-introduzione" hidden>
+        <h2>Introduzione e Obiettivi</h2>
+        <p>Il progetto Ruggine prevede la creazione di una chat di scambio di messaggi testuali. La chat permette anche la creazione di gruppi per la condivisione di messaggi. 
+            L'ammissione avviene all'avvio del programma con una richiesta di iscrizione mandata al server, mentre l'ingresso in un gruppo avviene solo per invito. L’applicazione 
+            genera un file di log, riportando, ogni 2 minuti, i dettagli sul tempo di CPU utilizzato da parte del server.</p>
+      </section>
+
+      <section data-manuale="progettista" id="pr-architettura" hidden>
+        <h2>Architettura</h2>
+
+
+        <h3>Protocol</h3>
+        <p>
+        Per la comunicazione tra server e client è stato definito un protocollo tipizzato. 
+        Abbiamo scelto di servirci di un protocollo perché consente di rendere più chiara la struttura complessiva dell’applicazione, 
+        organizzando in modo esplicito e leggibile tutte le possibili interazioni tra le due parti. 
+        In questo modo il “ping-pong” tra client e server viene gestito in maniera efficiente e semplice da implementare, 
+        riducendo la possibilità di ambiguità o errori dovuti al parsing testuale. 
+        La presenza di messaggi tipizzati permette inoltre di distinguere immediatamente la natura di ciascuna operazione 
+        (login, invio messaggi, gestione gruppi, cronologia, ecc.), semplificando lo sviluppo e la manutenzione del codice 
+        e garantendo una comunicazione più chiara e robusta.
+        Il protocollo è basato su due enum e una struct:
+        </p>
+
+        <ul>
+            <li><strong>ClientMessage</strong>: messaggi inviati dal client al server</li>
+            <li><strong>ServerMessage</strong>: messaggi inviati dal server al client (ack, errori, notifiche)</li>
+            <li><strong>Message</strong>: struttura che rappresenta un messaggio di chat</li>
+        </ul>
+
+        <!-- client Message -->
+        <h4>ClientMessage</h4>
+        <pre><code class="lang-rust">
+        enum ClientMessage {
+        Access      { username: String },
+        Logout      { username: String },
+        UserMessage { to: String, content: String },
+        GroupMessage{ to: String, content: String },
+
+        ChatListRequest,
+        UserRequest,
+
+        ResetUnread { chat_id: String },
+        UserHistory { with_user: String },
+
+        GroupHistory{ group: String },
+        GroupCreate { group: String, members: Vec },
+        GroupLeave  { group: String }
+        }
+        </code></pre>
+
+        <ul>
+          <li><code>Access { username }</code>: accesso o login di un utente.</li>
+          <li><code>Logout { username }</code>: disconnessione di un utente.</li>
+          <li><code>UserMessage { to, content }</code>: invio di un messaggio diretto a un altro utente.</li>
+          <li><code>GroupMessage { to, content }</code>: invio di un messaggio a un gruppo.</li>
+          <li><code>ChatListRequest</code>: richiesta della lista di chat disponibili (utenti e gruppi).</li>
+          <li><code>UserRequest</code>: richiesta della lista degli utenti registrati.</li>
+          <li><code>ResetUnread { chat_id }</code>: reset del contatore dei messaggi non letti in una chat (utente o gruppo).</li>
+          <li><code>UserHistory { with_user }</code>: richiesta della cronologia con un utente specifico.</li>
+          <li><code>GroupHistory { group }</code>: richiesta della cronologia dei messaggi di un gruppo.</li>
+          <li><code>GroupCreate { group, members }</code>: creazione di un nuovo gruppo con i membri indicati.</li>
+          <li><code>GroupLeave { group }</code>: abbandono di un gruppo.</li>
+       </ul>
+
+       <!-- server Message -->
+        <h4>ServerMessage</h4>
+        <pre><code class="lang-rust">
+            pub enum ServerMessage {
+                Ack { details: String },
+
+                Notify { from: String,
+                        to: String,
+                        content: String,
+                        timestamp: DateTime&lt;Utc&gt; },
+
+                ChatList { users: Vec&lt;String&gt;,
+                          groups: Vec&lt;String&gt;,
+                          group_members: HashMap&lt;String, Vec&lt;String&gt;&gt;,
+                          unread_counts: HashMap&lt;String, usize&gt;,
+                          all_users: Vec&lt;String&gt; },
+
+                UserHistory { with_user: String,
+                             messages: Vec&lt;Message&gt; },
+
+                GroupHistory { with_group: String,
+                              messages: Vec&lt;Message&gt; },
+
+                Error { code: String,
+                      message: String },
+
+                UsersList { all_users: Vec&lt;String&gt; };
+              }
+        </code></pre>
+
+        <ul>
+          <li><code>Ack { details }</code>: risposta di conferma dal server (acknowledgement).</li>
+          <li><code>Notify { from, to, content, timestamp }</code>: notifica di un messaggio inviato da un utente o a un gruppo con contenuto e timestamp.</li>
+          <li><code>ChatList { users, groups, group_members, unread_counts, all_users }</code>: invio della lista chat di un utente con:
+              <ul>
+                  <li><code>users</code>: elenco degli utenti con cui si ha una chat.</li>
+                  <li><code>groups</code>: elenco dei gruppi a cui si partecipa.</li>
+                  <li><code>group_members</code>: mappa dei gruppi con la lista dei rispettivi membri.</li>
+                  <li><code>unread_counts</code>: mappa con il numero di messaggi non letti per ciascuna chat.</li>
+                  <li><code>all_users</code>: elenco completo degli utenti registrati.</li>
+              </ul>
+          </li>
+          <li><code>UserHistory { with_user, messages }</code>: cronologia dei messaggi con un utente specifico.</li>
+          <li><code>GroupHistory { with_group, messages }</code>: cronologia dei messaggi di un gruppo.</li>
+          <li><code>Error { code, message }</code>: errore restituito dal server con codice e descrizione.</li>
+          <li><code>UsersList { all_users }</code>: invio della lista completa degli utenti registrati.</li>
+      </ul>
+
+
+      <h4>Message</h4>  
+      <pre><code class="lang-rust">
+          pub struct Message {
+              pub from: String,
+              pub to: String,
+              pub content: String,
+              pub timestamp: DateTime&lt;Utc&gt;,
+          }
+          </code></pre>
+
+          <ul>
+              <li><code>from</code>: mittente del messaggio.</li>
+              <li><code>to</code>: destinatario del messaggio (utente o gruppo).</li>
+              <li><code>content</code>: contenuto testuale del messaggio.</li>
+              <li><code>timestamp</code>: data e ora di invio del messaggio (in formato UTC).</li>
+          </ul>
+
+        <p>
+            Nel modello di chat, un utente mantiene la propria identità anche in caso di accessi multipli o disconnessioni dal server, 
+            conservando la cronologia delle conversazioni sia individuali sia di gruppo. 
+            Il sistema consente inoltre di effettuare il logout e di resettare il conteggio dei messaggi non letti all’apertura di una chat. 
+            Alla terminazione del server, i dati non vengono persistiti. 
+
+            Ogni utente è abilitato alla creazione di nuovi gruppi, all’invito di altri utenti registrati e alla possibilità di abbandonare un gruppo. 
+            Il server fornisce risposte strutturate che includono notifiche dei messaggi scambiati, la lista delle chat attive (con utenti, gruppi, membri e conteggi dei non letti), 
+            nonché la cronologia delle conversazioni richieste. 
+
+            Il protocollo è progettato per garantire una gestione esplicita e strutturata della comunicazione tra client e server, 
+            basata su messaggi tipizzati piuttosto che su parsing testuale, 
+            rendendo più semplice e sicura l’identificazione delle operazioni.</p>
+
+            
+
+
+            <h3>Server</h3>
+            <p>
+                Il server è implementato su <strong>Tokio</strong>, il runtime asincrono di Rust che fornisce un <em>reactor</em> per I/O non bloccante (epoll/kqueue/IOCP) e un <em>multi-threaded executor</em> per eseguire <em>futures</em> tramite <code>async/await</code>. In pratica, apriamo socket TCP e accettiamo connessioni senza bloccare il thread: ogni nuova connessione viene gestita come <em>task</em> separato con <code>tokio::spawn</code>, così lettura/scrittura sul socket e gestione del protocollo procedono in concorrenza con latenza minima anche sotto carico.
+                </p>
+
+                <p>
+                Lo stato condiviso del server è modellato con tipi thread-safe basati su <code>Arc&lt;Mutex&lt;...&gt;&gt;</code>, così più task possono leggere/aggiornare le strutture in modo coerente:
+                <ul>
+                  <li> <code>type ChatLog = Arc&lt;Mutex&lt;HashMap&lt;String, Vec&lt;Message&gt;&gt;&gt;&gt;</code> conserva le cronologie utente↔utente; </li>
+                  <li> <code>type GroupLog = Arc&lt;Mutex&lt;HashMap&lt;String, (Vec&lt;String&gt;, Vec&lt;Message&gt;)&gt;&gt;&gt;</code> mappa ogni gruppo ai suoi membri e ai messaggi; </li>
+                  <li> <code>type Users = Arc&lt;Mutex&lt;HashMap&lt;String, UserInfo&gt;&gt;&gt;</code> tiene gli utenti registrati e i loro metadati di sessione; </li>
+                  <li> <code>type UnreadCounts = Arc&lt;Mutex&lt;HashMap&lt;String, HashMap&lt;String, usize&gt;&gt;&gt;</code> traccia, per ciascun utente, i contatori di non letti per chat (utente o gruppo).</li>
+                </ul>
+                <p>
+                  L’uso di <code>Arc</code> consente la condivisione fra task, mentre <code>Mutex</code> garantisce mutabilità esclusiva durante gli aggiornamenti.
+                </p>
+
+                <p> La funzione </p>
+                  <pre><code>async fn handle_connection( 
+                            socket: TcpStream,
+                            chat_log: ChatLog,
+                            group_log: GroupLog,
+                            users: Users,
+                            unread_counts: UnreadCounts) { ... },
+                  </code></pre>
+                <p>processa i messaggi in arrivo dal client: effettua il pattern matching sulla <code>ClientMessage</code>, aggiorna le strutture condivise e risponde con le relative <code>ServerMessage</code>. </p>
+
+                <p> Infine, è stato creato un thread dedicato con <code>tokio::spawn</code> per la telemetria: un task periodico raccoglie le metriche d’uso CPU e ogni 2 minuti le persiste in un file di log. 
+                  Questo thread è isolato dal percorso I/O delle connessioni, in modo tale che la raccolta e il flush su disco non impattino la latenza del protocollo. </p>
+
+        <h3>Client</h3>
+        <p> Il Client è strutturato attorno alla <code>struct ChatApp</code>, che rappresenta lo stato principale dell’applicazione e gestisce sia i dati locali sia l’interazione con il server:</p>
+
+          <pre><code class="lang-rust">
+          struct ChatApp {
+              rt: Option<Runtime>,
+              username: String,
+              input_username: String,
+              write_half: Option<Arc<AsyncMutex<tokio::net::tcp::OwnedWriteHalf>>>,
+              read_half: Option<Arc<AsyncMutex<tokio::net::tcp::OwnedReadHalf>>>,
+              current_screen: Screen,
+              message_input: String,
+              messages: Arc<Mutex<VecDeque<String>>>,
+              current_target: Arc<Mutex<Option<ChatTarget>>>,
+              error_message: Option<String>,
+              search_filter: String,
+              new_group_name: String,
+              new_group_members: String,
+              first_time_in_chat: bool,
+              message_listener: Option<tokio::task::JoinHandle<()>>,
+              groups: Arc<Mutex<Vec<GroupInfo>>>,
+              group_creation_result: Arc<Mutex<Option<String>>>,
+              creating_group: Arc<Mutex<bool>>,
+              chats: Arc<Mutex<Vec<String>>>,
+              status_message: Arc<Mutex<Option<String>>>,
+              user_exists_check: Arc<Mutex<Option<bool>>>,
+              checking_user: Arc<Mutex<bool>>,
+              unread: Arc<Mutex<Unread>>,
+              all_users: Arc<Mutex<Vec<String>>>,
+              group_members_search: String,
+              selected_members: Vec<String>,
+              selected_users_for_group: Vec<String>,
+          }
+          </code></pre>
+
+          <p> Tra le funzioni implementate per la struct <code>ChatApp</code>, la funzione più degna di nota è </p>
+            <pre><code> fn spawn_message_reader(&mut self)  { ... }, </code></pre> 
+          <p>che crea un task asincrono dedicato alla ricezione dei messaggi dal server. 
+          Come un vero e proprio <em>message reader</em>, la funzione resta in ascolto sul socket TCP, deserializza i <code>ServerMessage</code> in arrivo 
+          e li inoltra al client aggiornando lo stato o l’interfaccia grafica. 
+          Questo approccio separa il flusso di input in un thread indipendente, evitando che la logica dell’interfaccia venga bloccata dalle operazioni di rete.
+          </p>
+
+          <p>
+          Infine, per quanto riguarda l'interfaccia grafica dell'applicazione, abbiamo valutato l’uso di framework esterni come <strong>React</strong>,  che però, nonostante offrano una grande flessibilità, risultano più complessi da integrare e mantenere in un contesto Rust. 
+          Abbiamo quindi scelto <strong>egui</strong>, una libreria grafica nativa Rust, che permette un rendering fluido, semplice da programmare e ben integrato con il modello asincrono. 
+          Rispetto a React, che richiede un’infrastruttura web separata e una gestione complessa del bridge con Rust, <code>egui</code> è immediato e consente un’integrazione diretta con il runtime asincrono, rendendo lo sviluppo più veloce e coerente con l’architettura del nostro client.
+          </p>
+
+        
+
+        </section>
+
+
+    
+        <section data-manuale="progettista" id="pr-Prestazioni&Test" hidden>
+            <h2>Prestazioni e Test</h2>
+
+            <h3>Test 1 -> 4 utenti collegati</h3>
+            <p> Per valutare l’impatto della nostra applicazione di messaggistica sul processore abbiamo utilizzato uno script in MATLAB che ci ha permesso di rappresentare 
+                l’andamento dell’utilizzo della CPU sia con un line plot (figura a sinistra) sia con un bar plot (figura a destra). 
+                Dai due grafici si nota subito che i valori rimangono sempre estremamente bassi, oscillando sotto lo 0.02, il che dimostra che l’applicazione ha un impatto praticamente trascurabile e non stressa in alcun modo la CPU. 
+                L’andamento osservato è caratterizzato da picchi isolati, intervallati da lunghi tratti prossimi allo zero, e abbiamo notato che tali picchi si verificano in corrispondenza di momenti in cui più utenti accedono contemporaneamente. </p>
+            <div class="grafici-container">
+                <figure>
+                    <img class="grafico" src="manuale_images/CPU_line.png" alt="Line Plot CPU" loading="lazy">
+                    <figcaption>CPU - Line Plot</figcaption>
+                </figure>
+                <figure>
+                    <img class="grafico" src="manuale_images/CPU_barPlot.png" alt="Bar Plot CPU" loading="lazy">
+                    <figcaption>CPU - Bar Plot</figcaption>
+                </figure>
+            </div>
+
+            <p> I dati mostrano che l’applicazione è estremamente leggera dal punto di vista del consumo di CPU e che i picchi registrati, pur essendo rari e di entità molto contenuta, sono legati all’accesso simultaneo di più utenti e non rappresentano un problema. 
+                Oltre a questa analisi, stiamo valutando anche il consumo di memoria per avere una visione più completa delle prestazioni complessive,</p>
+
+            <p>
+                E' stata effettuata anche una analisi del consumo di memoria dell’applicazione di messaggistica, sempre servendoci di uno script MATLAB che rappresenta i dati sia con un line plot (figura a sinistra) sia con un bar plot (figura a destra).
+                Dai grafici emerge che l’utilizzo della memoria cresce progressivamente nella fase iniziale, passando da circa 23.5k MB a circa 24.2k MB, per poi stabilizzarsi su questo valore senza evidenziare ulteriori variazioni significative. 
+                La fase di stabilità si osserva in corrispondenza di momenti in cui erano aperte più istanze dell’applicazione, con diversi utenti connessi contemporaneamente ma senza che venissero inviati messaggi.
+                Questo andamento indica che non viene impiegata memoria superflua durante le fasi di inattività, e che l’applicazione mantiene un consumo costante ed efficiente anche in presenza di più connessioni attive, senza fenomeni di spreco o perdite di memoria.
+            </p>
+            <div class="grafici-container">
+                <figure>
+                    <img class="grafico" src="manuale_images/mem_line.png" alt="Line Plot Memoria" loading="lazy">
+                    <figcaption>Memoria - Line Plot</figcaption>
+                </figure>
+                <figure>
+                    <img class="grafico" src="manuale_images/mem_bar.png" alt="Bar Plot Memoria" loading="lazy">
+                    <figcaption>Memoria - Bar Plot</figcaption>
+                </figure>
+            </div>
+
+            <h3>Test 2 -> 10 utenti collegati</h3>
+            <p>
+            E' stato poi effettuato un secondo test, con un numero maggiore di utenti connessi (da 4 a 10) e si osserva un incremento lineare nel tempo. 
+            A differenza del primo Test, l’andamento non è più oscillatorio: lo 0.0% viene toccato solo all’inizio e poi la curva resta sempre sopra lo zero. 
+            Nonostante ciò, i valori rimangono complessivamente bassi e i picchi sono ancora inferiori allo 0.04%, segno che il processore non è sotto stress. </p>
+
+            <div class="grafici-container">
+                <figure>
+                    <img class="grafico" src="manuale_images/cpu2_line.png" alt="Line Plot CPU" loading="lazy">
+                    <figcaption>CPU - Line Plot</figcaption>
+                </figure>
+                <figure>
+                    <img class="grafico" src="manuale_images/cpu2_bar.png" alt="Bar Plot CPU" loading="lazy">
+                    <figcaption>CPU - Bar Plot</figcaption>
+                </figure>
+            </div>
+
+            <p> Per quanto riguarda la memoria, il line plot evidenzia una crescita progressiva nella fase iniziale, con un incremento che porta il consumo da circa 12.6k MB a circa 13.8k MB, per poi stabilizzarsi su un valore costante. 
+            Il bar plot conferma la distribuzione uniforme dei valori una volta raggiunta la stabilità. 
+            Questa dinamica dimostra che l’applicazione scala in modo efficiente con l’aumento degli utenti connessi: l’uso della memoria cresce per accogliere le nuove sessioni, ma si stabilizza rapidamente senza sprechi o incrementi incontrollati.
+            </p>
+            <div class="grafici-container">
+                <figure>
+                    <img class="grafico" src="manuale_images/mem2_line.png" alt="Line Plot Memoria" loading="lazy">
+                    <figcaption>Memoria - Line Plot</figcaption>
+                </figure>
+                <figure>
+                    <img class="grafico" src="manuale_images/mem2_bar.png" alt="Bar Plot Memoria" loading="lazy">
+                    <figcaption>Memoria - Bar Plot</figcaption>
+                </figure>
+            </div>
+
+            <h3>Test 3 -> 20 utenti collegati</h3>
+
+            <p>
+              Infine, un terzo test è stato effettuato con 20 utenti collegati e sono stati stampati, anche in questo caso, grafici MATLAB che analizzino i dati raccolti nel file di log.
+              Si nota come l’utilizzo della CPU raggiunga valori iniziali più elevati (fino allo 0.04%) per poi oscillare in maniera evidente attorno a valori molto bassi. 
+              Questo è dovuto al fatto che nei primi 2 minuti, circa 15 utenti si sono collegati quasi contemporaneamente, generando un picco iniziale. Gli altri picchi sono stati generati quando si sono registrati
+              i restanti 5 utenti o quando sono stati creati gruppi con molti membri.
+              Tuttavia, nonostante l’aumento degli utenti, i valori rimangono sempre sotto lo 0.05%, dimostrando che il carico sul processore è ancora trascurabile e pienamente sostenibile.
+              </p>
+
+            <div class="grafici-container">
+                <figure>
+                    <img class="grafico" src="manuale_images/cpu3_line.png" alt="Line Plot CPU" loading="lazy">
+                    <figcaption>CPU - Line Plot</figcaption>
+                </figure>
+                <figure>
+                    <img class="grafico" src="manuale_images/cpu3_bar.png" alt="Bar Plot CPU" loading="lazy">
+                    <figcaption>CPU - Bar Plot</figcaption>
+                </figure>
+            </div>
+
+            <p>
+            Per quanto riguarda la memoria, i grafici generati mostrano un incremento iniziale fino a circa 30k MB, seguito da una fase di stabilizzazione lineare. 
+            Il line plot mette in evidenza la dinamica di crescita rapida nella fase di avvio, sempre dovuta al numero elevato di utenti che si sono collegati quasi contemporaneamente.
+            Questo comportamento indica che l’applicazione scala correttamente, utilizzando più memoria per gestire il maggior numero di sessioni, ma mantenendo un consumo efficiente e stabile.
+            </p>
+
+
+            <div class="grafici-container">
+                <figure>
+                    <img class="grafico" src="manuale_images/mem3_line.png" alt="Line Plot Memoria" loading="lazy">
+                    <figcaption>Memoria - Line Plot</figcaption>
+                </figure>
+                <figure>
+                    <img class="grafico" src="manuale_images/mem3_bar.png" alt="Bar Plot Memoria" loading="lazy">
+                    <figcaption>Memoria - Bar Plot</figcaption>
+                </figure>
+            </div>
+
+
+
+            <h3>Confronto complessivo</h3>
+            <p>
+            Per trarre le opportune conclusioni, è necessario confrontare i tre test, dai quali emerge un messaggio chiaro di scalabilità:
+            Nel complesso, infatti, l’applicazione si è dimostrata estremamente veloce ed efficiente: l’aumento degli utenti comporta solo incrementi marginali e fisiologici nell’uso di CPU e memoria, senza fenomeni di sovraccarico o degrado delle prestazioni.
+            </p>
+
+
+
+
+
+
+            <h3>Dimensione Eseguibili</h3>
+            <p>
+              Oltre alle analisi di performance in fase di esecuzione, è stata valutata anche la dimensione degli eseguibili.
+              In particolare, la <strong>cartella di release</strong> risulta pari a circa <strong>803,2 MB</strong>, mentre i singoli eseguibili sono molto più compatti:
+              <strong>client 14&nbsp;MB</strong> e <strong>server 2&nbsp;MB</strong>. Ciò indica che lo spazio complessivo è influenzato soprattutto da dipendenze e artefatti di compilazione,
+              mentre i binari finali rimangono leggeri e adatti alla distribuzione. </p>
+
+
+        </section>
+
+        <section data-manuale="progettista" id="pr-Roadmap" hidden>
+          <h2>Roadmap di Sviluppo</h2>
+          <p>
+            Durante le discussioni di sviluppo sono emerse alcune possibili migliorie da introdurre nelle prossime versioni
+            dell’applicazione, volte a renderla più completa, sicura ed efficiente:
+          </p>
+
+          <ul>
+            <li><strong>Persistenza dei dati</strong>: integrazione di un database per mantenere i messaggi anche in caso di riavvio del server.</li>
+            <li><strong>Sicurezza</strong>: introduzione di meccanismi di autenticazione, ad esempio tramite password, e potenziamento della protezione delle comunicazioni.</li>
+            <li><strong>Multimedia</strong>: possibilità di inviare foto, video e file audio oltre ai messaggi testuali.</li>
+            <li><strong>Scalabilità</strong>: bilanciamento del carico su più server per supportare un numero maggiore di utenti simultanei.</li>
+          </ul>
+
+        </section>
+
+    <!-- <p style="color:var(--muted)">Suggerimento: stampa in PDF con <strong>Ctrl/Cmd + P</strong>.</p> -->
+    </main>
+  </div>
+
+  <script>
+    // ---- Tabs ----
+    const tabs = document.querySelectorAll('.tab');
+    const sections = [...document.querySelectorAll('main section')];
+    const title = document.getElementById('title');
+    const subtitle = document.getElementById('subtitle');
+    const toc = document.getElementById('toc');
+
+    const LABELS = {
+      gruppo: {title:"Sezione Gruppo 49", sub:"Esame di Programmazione di Sistema."},
+      utente: {title:"Manuale Utente", sub:"Installazione, configurazione e guida all'uso."},
+      progettista: {title:"Manuale del Progettista", sub:"Architettura tecnica e prestazioni"},
+    };
+
+    function setManuale(tipo){
+      // attiva tab
+      tabs.forEach(t => t.setAttribute('aria-selected', String(t.dataset.manuale===tipo)));
+      // mostra/nasconde sezioni
+      sections.forEach(s => s.hidden = s.dataset.manuale !== tipo);
+      // header
+      title.textContent = LABELS[tipo].title;
+      subtitle.textContent = LABELS[tipo].sub;
+      // ricostruisci TOC
+      buildTOC(tipo);
+      // deep-link
+      history.replaceState(null, '', '#'+tipo);
+    }
+
+    tabs.forEach(t => t.addEventListener('click', () => setManuale(t.dataset.manuale)));
+
+    // ---- TOC dinamico ----
+    function buildTOC(tipo){
+      toc.innerHTML = '';
+      const visibili = sections.filter(s => !s.hidden && s.dataset.manuale===tipo);
+      const heads = visibili.flatMap(s => [s.querySelector('h2'), ...s.querySelectorAll('h3')]).filter(Boolean);
+      heads.forEach(h => {
+        if (!h.id) h.id = (h.textContent.trim().toLowerCase().replace(/[^a-z0-9]+/gi,'-'));
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = '#'+h.id;
+        a.textContent = h.textContent;
+        li.appendChild(a); toc.appendChild(li);
+      });
+      // evidenziazione attiva
+      const obs = new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{
+          if(e.isIntersecting){
+            document.querySelectorAll('.toc a').forEach(a=>a.classList.remove('active'));
+            const link = document.querySelector(`.toc a[href="#${e.target.id}"]`);
+            if(link) link.classList.add('active');
+          }
+        });
+      }, {rootMargin:'-40% 0px -50% 0px', threshold:0.01});
+      document.querySelectorAll('main section:not([hidden]) h2, main section:not([hidden]) h3').forEach(h=>obs.observe(h));
+    }
+
+    // ---- Default: hash o Gruppo ----
+    const hash = (location.hash || '#gruppo').replace('#','');
+    const initial = ['gruppo','utente','progettista'].includes(hash) ? hash : 'gruppo';
+    setManuale(initial);
+  </script>
+</body>
+</html>
