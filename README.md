@@ -1,21 +1,28 @@
-# Projects in Embedded and Cyber Physical Systems, Programming and Control
+# Projects in Automation and Control for Embedded and Cyber Physical Systems
 
-This repository collects a series of projects developed in the domains of robotics, computer architecture, system programming, and cyber-physical systems (CPS). Each project explores different aspects of algorithm design, implementation, and evaluation, with applications spanning reinforcement learning, embedded systems, distributed control, and software engineering.
+This repository collects a series of projects developed in the domains of robotics, computer architecture, system programming and cyber-physical systems (CPS). Each project explores different aspects of algorithm design, implementation, and evaluation, with applications spanning reinforcement learning, embedded systems, distributed control and software engineering.
+
+
+## 📌 Repository Structure
+- `Robot Walking on a Mars Yard/` → Reinforcement learning for monopod robot locomotion.  
+- `Pac-Man game/` → Pac-Man implementation on ARM-based embedded systems.  
+- `Messaging Application Rust/` → Client–server messaging application in Rust.  
+- `Modeling and control of CPS/` → Distributed control strategies for cyber-physical systems.  
 
 ---
 
-## 📂 Robot_Walking
+## Robot Walking on a Mars Yard
 **Project title:** *Robot Learning – Teaching a Robot How to Walk*  
 **Period:** Oct 2024 – Jan 2025  
 
-This project focused on developing **reinforcement learning algorithms** to train a simulated monopod robot to walk and adapt to complex terrains, including Mars-like environments.  
+This project focused on developing **Reinforcement Learning algorithms** to train a simulated monopod robot to walk and adapt to complex terrains, including Mars-like environments.  
 - Applied **Domain Randomization** to enhance sim-to-real transfer.  
 - Improved robustness and adaptability under dynamic and unpredictable conditions.  
 
 ---
 
-## 📂 Pac-Man game
-**Project title:** *Computer Architecture – Pac-Man Game Implementation*  
+## Pac-Man game
+**Project title:** *Computer Architecture – Pac-Man Game on a *  
 **Period:** Dec 2024 – Jan 2025  
 
 This project involved the implementation of the **Pac-Man game** on an embedded board using **C** and **ARM architecture**.  
@@ -24,7 +31,7 @@ This project involved the implementation of the **Pac-Man game** on an embedded 
 
 ---
 
-## 📂 Messaging Application Rust
+## Messaging Application in Rust
 **Project title:** *System Programming – Messaging Application*  
 **Period:** Jun 2025 – Sep 2025  
 
@@ -35,7 +42,7 @@ This project consisted in developing a **messaging application** with a **client
 
 ---
 
-## 📂 Modeling and control of CPS
+## Modeling and control of CPSs
 **Project title:** *Modeling and Control of CPS – Distributed Control Strategies for Network Systems*  
 **Period:** (unspecified)  
 
@@ -45,12 +52,4 @@ This project explored the design and evaluation of **distributed control strateg
 
 ---
 
-## 📌 Repository Structure
-- `Robot_Walking/` → Reinforcement learning for monopod robot locomotion.  
-- `Pac-Man game/` → Pac-Man implementation on ARM-based embedded systems.  
-- `Messaging Application Rust/` → Client–server messaging application in Rust.  
-- `Modeling and control of CPS/` → Distributed control strategies for cyber-physical systems.  
-
----
-
-✍️ **Author:** annamaroma  
+**Author:** annamaroma  
