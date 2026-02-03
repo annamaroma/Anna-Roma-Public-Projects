@@ -1,10 +1,9 @@
 # Anna Roma – Public Projects
 
-Hi, I’m Anna 
-I’m a Software Engineering and Mathematical Engineering student interested in robotics, control and embedded systems.  
+Hi, I’m Anna Roma, a Software Engineering and Mathematical Engineering student interested in robotics, control and embedded systems.  
 This repo collects a few projects I’m most proud of, coming from courses in automation, computer architecture, operating systems and CPS.
 
-You can find my CV here: 
+You can find my CV here: [Download my CV (PDF)](Anna_Roma_CV.pdf)
 
 -- 
 
